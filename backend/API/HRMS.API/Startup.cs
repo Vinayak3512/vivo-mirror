@@ -28,6 +28,12 @@ using ContributionsFeature.Application.DTO;
 using RecruitmentFeature.Application.DTO;
 using AnalyticsFeature.Application.DTO;
 using OnboardingFeature.Application.DTO;
+using AuthFeature.Application;
+using AuthFeature.Application.Services;
+using AuthFeature.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace HRMS.API
 {
@@ -52,16 +58,7 @@ namespace HRMS.API
             app.UseForwardedHeaders();
             //app.UseStaticFiles();
             
-            _ = Task.Run(() =>
-            {
-                try
-                {
-                    using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
-                    var context = serviceScope.ServiceProvider.GetRequiredService<PostgresDbContext>();
-                    context.Database.EnsureCreated();
-                }
-                catch { }
-            });
+            DataSeeder.SeedData(app);
 
             app.UseRouting();
             app.UseRequestTimeouts();
@@ -116,10 +113,35 @@ namespace HRMS.API
                 typeof(CreateContributionHandler).Assembly,
                 typeof(CreateJobPostingHandler).Assembly,
                 typeof(GenerateReportHandler).Assembly,
-                typeof(CreateOnboardingTaskHandler).Assembly
+                typeof(CreateOnboardingTaskHandler).Assembly,
+                typeof(AuthHandler).Assembly
             ]);
 
             services.AddInjectionPostgres(configuration);
+            
+            // Register Auth Services
+            services.AddScoped<IJwtService, JwtService>();
+
+            // Configure JWT Authentication
+            var jwtKey = configuration["Jwt:Key"] ?? "super_secret_key_that_is_at_least_32_characters_long";
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidAudience = configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                };
+            });
             services.AddModulesDependencyInjection(configuration);
             services.ConfigureApiBehavior();
             services.ConfigureCorsPolicy(configuration);

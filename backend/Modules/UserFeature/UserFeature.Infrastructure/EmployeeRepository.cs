@@ -91,5 +91,10 @@ namespace UserFeature.Infrastructure
         {
             return await GetItemAsync(GetAllEmployeesQuery(request));
         }
+
+        public async Task<Employee?> GetEmployeeByEmailAsync(string email)
+        {
+            return await GetItemAsync(x => x.Email == email && x.DocumentType == nameof(Employee));
+        }
     }
 }

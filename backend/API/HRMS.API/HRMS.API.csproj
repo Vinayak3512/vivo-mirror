@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="HotChocolate.AspNetCore" Version="16.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
   </ItemGroup>
 
@@ -51,6 +52,9 @@
     <ProjectReference Include="..\..\Modules\OnboardingFeature\OnboardingFeature.GraphQL\OnboardingFeature.GraphQL.csproj" />
     <ProjectReference Include="..\..\Modules\OnboardingFeature\OnboardingFeature.Infrastructure\OnboardingFeature.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Shared\HRMS.Shared.Infrastructure\HRMS.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\AuthFeature\AuthFeature.Application\AuthFeature.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\AuthFeature\AuthFeature.Infrastructure\AuthFeature.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\AuthFeature\AuthFeature.GraphQL\AuthFeature.GraphQL.csproj" />
   </ItemGroup>
 
 </Project>

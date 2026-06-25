@@ -17,6 +17,7 @@ namespace UserFeature.Domain
         public string? ManagerId { get; set; }
         public string? ReportingManagerId { get; set; }
         public string? Role { get; set; } // Employee, Manager, HR, Admin
+        public string? PasswordHash { get; set; }
         public string? Status { get; set; } // Active, Inactive, Onboarding, Exit
         public string? Country { get; set; } // IN, US
         public string? OnboardingStatus { get; set; } // Pre-joining, Day-1, Week-1, Month-1, Completed

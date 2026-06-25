@@ -11,5 +11,6 @@ namespace UserFeature.Application.Repository
     {
         Task<(IEnumerable<Employee> result, int count)> GetAllEmployeesWithCountAsync(GetAllEmployeesRequest request);
         Task<Employee?> GetEmployeeAsync(GetAllEmployeesRequest request);
+        Task<Employee?> GetEmployeeByEmailAsync(string email);
     }
 }
