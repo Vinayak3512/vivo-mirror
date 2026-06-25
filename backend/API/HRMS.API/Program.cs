@@ -1,5 +1,4 @@
 using HRMS.API;
-using HRMS.Core.KeyVault.Extensions;
 using Microsoft.AspNetCore.Http.Timeouts;
 
 var builder = WebApplication.CreateBuilder(args);

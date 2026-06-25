@@ -24,7 +24,7 @@ namespace HRMS.Shared.Application.Modules.MediaFeature
         {
             _azureStorage = azureStorage;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _blobUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            _blobUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
         }
 
         public async Task<BaseResponse<DownloadMediaResponse>> Handle(DownloadMediaRequest downloadMediaRequest, CancellationToken cancellationToken)
@@ -63,7 +63,7 @@ namespace HRMS.Shared.Application.Modules.MediaFeature
         {
             _azureStorage = azureStorage;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _blobUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            _blobUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
         }
 
         public async Task<BaseResponse<DownloadMediaV1Response>> Handle(DownloadMediaV1Request downloadMediaRequest, CancellationToken cancellationToken)
@@ -262,7 +262,7 @@ namespace HRMS.Shared.Application.Modules.MediaFeature
         {
             _azureStorage = azureStorage;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _blobBaseUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            _blobBaseUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
             _userInfo = userInfo;
         }
 
@@ -422,7 +422,7 @@ namespace HRMS.Shared.Application.Modules.MediaFeature
         {
             _azureStorage = azureStorage;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _blobUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            _blobUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
             _userInfo = userInfo;
             _heicConversion = heicConversion ?? throw new ArgumentNullException(nameof(heicConversion));
         }
@@ -595,7 +595,7 @@ namespace HRMS.Shared.Application.Modules.MediaFeature
         {
             _azureStorage = azureStorage;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _blobUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            _blobUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
             _currentBlobUrl = _blobUrl;
             _userInfo = userInfo;
             _heicConversion = heicConversion ?? throw new ArgumentNullException(nameof(heicConversion));

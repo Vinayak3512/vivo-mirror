@@ -15,7 +15,7 @@ namespace HRMS.Shared.Application.Mapper
 
         protected MediaResolverBase(IConfiguration configuration)
         {
-            BlobUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            BlobUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
         }
     }
 

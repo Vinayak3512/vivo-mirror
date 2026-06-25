@@ -24,7 +24,7 @@ namespace HRMS.Shared.Infrastructure.AzureStorage
 
         public AzureStorage(IConfiguration configuration, ILogger<AzureStorage> logger)
         {
-            _blobStorage = configuration.ExtractKey<BlobStorage>(Key.BlobStorage) ?? throw new ArgumentNullException("Connection string not found.");
+            _blobStorage = configuration.Get<BlobStorage>() ?? throw new ArgumentNullException("Connection string not found.");
             _logger = logger;
         }
 

@@ -25,7 +25,7 @@ namespace HRMS.Shared.Application.Modules.MediaFeature.BulkUploadMedia
         {
             _azureStorage = azureStorage;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _blobUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            _blobUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
             _userInfo = userInfo;
             _heicConversion = heicConversion ?? throw new ArgumentNullException(nameof(heicConversion));
         }
@@ -196,7 +196,7 @@ namespace HRMS.Shared.Application.Modules.MediaFeature.BulkUploadMedia
         {
             _azureStorage = azureStorage;
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _blobUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            _blobUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
             _currentBlobUrl = _blobUrl;
             _userInfo = userInfo;
             _heicConversion = heicConversion ?? throw new ArgumentNullException(nameof(heicConversion));

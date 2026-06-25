@@ -32,7 +32,7 @@ namespace HRMS.Shared.Application.Mapper
 
         public ProfilePictureResolver(IConfiguration configuration, IAzureStorage azureStorage)
         {
-            _blobUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            _blobUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
             _azureStorage = azureStorage;
         }
 
@@ -74,7 +74,7 @@ namespace HRMS.Shared.Application.Mapper
 
         public ProfilePictureResolverByCreatedByUserId(IConfiguration configuration, IAzureStorage azureStorage, ClaimsPrincipalExtensions userInfo)
         {
-            _blobUrl = configuration.ExtractKey<BlobStorage>(Key.BlobStorage).Url ?? string.Empty;
+            _blobUrl = configuration.Get<BlobStorage>()?.Url ?? string.Empty;
             _azureStorage = azureStorage;
             _userInfo = userInfo;
         }

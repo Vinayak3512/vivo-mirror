@@ -14,7 +14,7 @@ namespace HRMS.API.Middleware
         {
             _next = next;
             _httpClientFactory = httpClientFactory;
-            _ipAddresses = configuration.ExtractKey<List<string>>(Key.LocalIpAllowed) ?? new List<string>();
+            _ipAddresses = configuration.GetSection("LocalIpAllowed").Get<List<string>>() ?? new List<string>() ?? new List<string>();
         }
 
         public async Task InvokeAsync(HttpContext context)
