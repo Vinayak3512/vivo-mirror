@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@apollo/client";
+import { GET_ALL_ANNOUNCEMENTS } from "../../graphql/queries/announcements";
 
 type Announcement = {
   id: string;
@@ -83,7 +85,30 @@ const priorityColors: Record<Announcement["priority"], string> = {
 };
 
 export default function AnnouncementsPage() {
-  const data = useMemo(() => generateMockData(), []);
+  const { data: queryData, loading, error } = useQuery(GET_ALL_ANNOUNCEMENTS, {
+    variables: {
+      request: {
+        pageCriteria: { enablePage: true, pageSize: 100, skip: 0 }
+      }
+    }
+  });
+
+  const data = useMemo(() => {
+    if (!queryData?.getAllAnnouncements?.data?.announcements) return [];
+    return queryData.getAllAnnouncements.data.announcements.map((ann: any) => ({
+      id: ann.id,
+      title: ann.title || "Announcement",
+      category: (ann.category?.toLowerCase() || "general") as any,
+      priority: (ann.priority?.toLowerCase() || "low") as any,
+      content: ann.content || "",
+      postedDate: ann.postedDate?.split("T")[0] || "",
+      expiryDate: "", // Not in DTO
+      views: 0,
+      likes: 0,
+      acknowledged: true,
+    }));
+  }, [queryData]);
+
   const [filter, setFilter] = useState<"all" | "unacknowledged">("all");
 
   const filteredData =
@@ -111,7 +136,17 @@ export default function AnnouncementsPage() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Filter Tabs */}
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-teal-600 border-t-transparent"></div>
+          </div>
+        ) : error ? (
+          <div className="rounded-lg bg-red-50 p-4 text-red-800">
+            Error loading announcements: {error.message}
+          </div>
+        ) : (
+          <>
+            {/* Filter Tabs */}
         <div className="mb-6 flex gap-4">
           <button
             onClick={() => setFilter("all")}
@@ -186,12 +221,14 @@ export default function AnnouncementsPage() {
           ))}
         </div>
 
-        {filteredData.length === 0 && (
-          <div className="rounded-lg bg-white p-12 text-center dark:bg-slate-700">
-            <p className="text-slate-600 dark:text-slate-400">
-              No announcements to display.
-            </p>
-          </div>
+            {filteredData.length === 0 && (
+              <div className="rounded-lg bg-white p-12 text-center dark:bg-slate-700">
+                <p className="text-slate-600 dark:text-slate-400">
+                  No announcements to display.
+                </p>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

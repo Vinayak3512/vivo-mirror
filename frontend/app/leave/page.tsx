@@ -4,6 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable, FilterConfig } from "../../components/table/DataTable";
 import { useMemo } from "react";
 import Link from "next/link";
+import { useQuery } from "@apollo/client";
+import { GET_ALL_LEAVES } from "../../graphql/queries/leave";
 
 type LeaveRequest = {
   id: string;
@@ -129,7 +131,27 @@ function generateMockData(): LeaveRequest[] {
 }
 
 export default function LeavePage() {
-  const data = useMemo(() => generateMockData(), []);
+  const { data: queryData, loading, error } = useQuery(GET_ALL_LEAVES, {
+    variables: {
+      request: {
+        pageCriteria: { enablePage: true, pageSize: 100, skip: 0 }
+      }
+    }
+  });
+
+  const data = useMemo(() => {
+    if (!queryData?.getAllLeaves?.data?.leaves) return [];
+    return queryData.getAllLeaves.data.leaves.map((leave: any) => ({
+      id: leave.id,
+      type: leave.leaveType?.toLowerCase() || "casual",
+      startDate: leave.startDate?.split("T")[0] || "",
+      endDate: leave.endDate?.split("T")[0] || "",
+      days: leave.totalDays || 0,
+      reason: leave.reason || "",
+      status: leave.status?.toLowerCase() || "pending",
+      approvedBy: "Manager", // Mocked as not in DTO
+    }));
+  }, [queryData]);
 
   const filters: FilterConfig = [
     { type: "search", placeholder: "Search by reason..." },
@@ -216,14 +238,24 @@ export default function LeavePage() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <DataTable<LeaveRequest>
-          data={data}
-          columns={columns}
-          pageSizeOptions={[10, 20, 50]}
-          initialPageSize={10}
-          filters={filters}
-          className="rounded-md"
-        />
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-teal-600 border-t-transparent"></div>
+          </div>
+        ) : error ? (
+          <div className="rounded-lg bg-red-50 p-4 text-red-800">
+            Error loading leaves: {error.message}
+          </div>
+        ) : (
+          <DataTable<LeaveRequest>
+            data={data}
+            columns={columns}
+            pageSizeOptions={[10, 20, 50]}
+            initialPageSize={10}
+            filters={filters}
+            className="rounded-md"
+          />
+        )}
       </main>
     </div>
   );

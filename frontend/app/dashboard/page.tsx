@@ -3,11 +3,28 @@
 import { useSession } from "../../context/SessionContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { useQuery } from "@apollo/client";
+import { GET_DASHBOARD_SUMMARY } from "../../graphql/queries/dashboard";
 
 export default function DashboardPage() {
   const { user, isAuthenticated, isLoading } = useSession();
   const router = useRouter();
+
+  const { data: summaryData, loading: summaryLoading } = useQuery(GET_DASHBOARD_SUMMARY, {
+    variables: {
+      request: { pageCriteria: { enablePage: true, pageSize: 1, skip: 0 } }
+    },
+    skip: !isAuthenticated
+  });
+
+  const stats = useMemo(() => {
+    return {
+      leaveBalance: 12, // Mocked as balance is not in DTO
+      docsCount: "5/7", // Mocked
+      announcementsCount: summaryData?.getAllAnnouncements?.data?.announcements?.length || 0,
+    };
+  }, [summaryData]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -88,7 +105,7 @@ export default function DashboardPage() {
                     Leave Balance
                   </p>
                   <p className="mt-2 text-2xl font-bold text-orange-600 dark:text-orange-400">
-                    12 days
+                    {stats.leaveBalance} days
                   </p>
                 </div>
                 <div className="rounded-full bg-orange-100 p-3 dark:bg-orange-900">
@@ -119,7 +136,7 @@ export default function DashboardPage() {
                     Documents
                   </p>
                   <p className="mt-2 text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    5/7
+                    {stats.docsCount}
                   </p>
                 </div>
                 <div className="rounded-full bg-blue-100 p-3 dark:bg-blue-900">
@@ -205,7 +222,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Announcements</p>
-                  <p className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">2 New</p>
+                  <p className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.announcementsCount} New</p>
                 </div>
                 <div className="rounded-full bg-amber-100 p-3 dark:bg-amber-900">
                   <svg className="h-6 w-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

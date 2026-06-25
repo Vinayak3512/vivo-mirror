@@ -4,6 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable, FilterConfig } from "../../components/table/DataTable";
 import { useMemo } from "react";
 import Link from "next/link";
+import { useQuery } from "@apollo/client";
+import { GET_ALL_PAYROLLS } from "../../graphql/queries/payroll";
 
 type PayrollRecord = {
   id: string;
@@ -125,7 +127,26 @@ function generateMockData(): PayrollRecord[] {
 }
 
 export default function PayrollPage() {
-  const data = useMemo(() => generateMockData(), []);
+  const { data: queryData, loading, error } = useQuery(GET_ALL_PAYROLLS, {
+    variables: {
+      request: {
+        pageCriteria: { enablePage: true, pageSize: 100, skip: 0 }
+      }
+    }
+  });
+
+  const data = useMemo(() => {
+    if (!queryData?.getAllPayrolls?.data?.payrolls) return [];
+    return queryData.getAllPayrolls.data.payrolls.map((payroll: any) => ({
+      id: payroll.id,
+      payPeriod: `${payroll.month} ${payroll.year}`,
+      grossPay: payroll.basicSalary + (payroll.allowances || 0),
+      totalDeductions: payroll.deductions || 0,
+      netPay: payroll.netSalary || 0,
+      status: payroll.status?.toLowerCase() || "paid",
+      country: "US", // Defaulted
+    }));
+  }, [queryData]);
 
   const filters: FilterConfig = [
     { type: "search", placeholder: "Search payroll..." },
@@ -199,14 +220,24 @@ export default function PayrollPage() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <DataTable<PayrollRecord>
-          data={data}
-          columns={columns}
-          pageSizeOptions={[10, 20, 50]}
-          initialPageSize={10}
-          filters={filters}
-          className="rounded-md"
-        />
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-teal-600 border-t-transparent"></div>
+          </div>
+        ) : error ? (
+          <div className="rounded-lg bg-red-50 p-4 text-red-800">
+            Error loading payroll: {error.message}
+          </div>
+        ) : (
+          <DataTable<PayrollRecord>
+            data={data}
+            columns={columns}
+            pageSizeOptions={[10, 20, 50]}
+            initialPageSize={10}
+            filters={filters}
+            className="rounded-md"
+          />
+        )}
       </main>
     </div>
   );

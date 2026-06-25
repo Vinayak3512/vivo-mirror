@@ -4,6 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTable, FilterConfig } from "../../components/table/DataTable";
 import { useMemo } from "react";
 import Link from "next/link";
+import { useQuery } from "@apollo/client";
+import { GET_ALL_ATTENDANCE } from "../../graphql/queries/attendance";
 
 type AttendanceRecord = {
   id: string;
@@ -109,7 +111,26 @@ function generateMockData(): AttendanceRecord[] {
 }
 
 export default function AttendancePage() {
-  const data = useMemo(() => generateMockData(), []);
+  const { data: queryData, loading, error } = useQuery(GET_ALL_ATTENDANCE, {
+    variables: {
+      request: {
+        pageCriteria: { enablePage: true, pageSize: 100, skip: 0 }
+      }
+    }
+  });
+
+  const data = useMemo(() => {
+    if (!queryData?.getAllAttendance?.data?.attendanceRecords) return [];
+    return queryData.getAllAttendance.data.attendanceRecords.map((record: any) => ({
+      id: record.id,
+      date: record.date.split("T")[0],
+      clockIn: record.clockInTime ? new Date(record.clockInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "—",
+      clockOut: record.clockOutTime ? new Date(record.clockOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "—",
+      status: record.status?.toLowerCase() || "absent",
+      workingHours: record.totalHours || 0,
+      location: "Office", // Mocking location as it's not in the current DTO
+    }));
+  }, [queryData]);
 
   const filters: FilterConfig = [
     { type: "search", placeholder: "Search by location..." },
@@ -151,14 +172,24 @@ export default function AttendancePage() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <DataTable<AttendanceRecord>
-          data={data}
-          columns={columns}
-          pageSizeOptions={[10, 20, 50]}
-          initialPageSize={10}
-          filters={filters}
-          className="rounded-md"
-        />
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-teal-600 border-t-transparent"></div>
+          </div>
+        ) : error ? (
+          <div className="rounded-lg bg-red-50 p-4 text-red-800">
+            Error loading attendance: {error.message}
+          </div>
+        ) : (
+          <DataTable<AttendanceRecord>
+            data={data}
+            columns={columns}
+            pageSizeOptions={[10, 20, 50]}
+            initialPageSize={10}
+            filters={filters}
+            className="rounded-md"
+          />
+        )}
       </main>
     </div>
   );
