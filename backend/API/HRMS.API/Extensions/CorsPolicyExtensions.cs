@@ -1,4 +1,4 @@
-﻿namespace HRMS.API.Extensions
+namespace HRMS.API.Extensions
 {
     public static class CorsPolicyExtensions
     {
@@ -18,7 +18,8 @@
                     {
                         builder.WithOrigins(allowedOrigins)
                             .AllowAnyMethod()
-                            .AllowAnyHeader();
+                            .AllowAnyHeader()
+                            .AllowCredentials();
                     }
                 });
             });
